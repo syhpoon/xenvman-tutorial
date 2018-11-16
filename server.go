@@ -26,6 +26,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"sync"
@@ -42,6 +43,7 @@ type Server struct {
 	server   http.Server
 	listener net.Listener
 	ctx      context.Context
+	sessions map[string]chan *BroMessage
 	sync.RWMutex
 }
 
@@ -54,6 +56,7 @@ func NewServer(listener net.Listener, ctx context.Context) *Server {
 			Handler: router,
 		},
 		listener: listener,
+		sessions: map[string]chan *BroMessage{},
 		ctx:      ctx,
 	}
 }
@@ -63,6 +66,13 @@ func (s *Server) Run(wg *sync.WaitGroup) {
 
 	// API endpoints
 	s.setupHandlers()
+
+	go func() {
+		<-s.ctx.Done()
+		_ = s.server.Shutdown(s.ctx)
+
+		wg.Done()
+	}()
 
 	log.Printf("Starting bro server at %s", s.listener.Addr().String())
 
@@ -81,7 +91,7 @@ func (s *Server) setupHandlers() {
 		Methods(http.MethodPost)
 
 	// GET /v1/poll - Poll for new bro messages
-	s.router.HandleFunc("/v1/poll", s.pollHandler).
+	s.router.HandleFunc("/v1/poll/{id}", s.pollHandler).
 		Methods(http.MethodGet)
 }
 
@@ -110,33 +120,69 @@ func (s *Server) postHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	s.Lock()
+	for id, ch := range s.sessions {
+		if id != msg.From {
+			select {
+			case ch <- &msg:
+			default:
+			}
+		}
+	}
+	s.Unlock()
+
 	SendHttpResponse(w, http.StatusOK, nil, "")
 }
 
 func (s *Server) pollHandler(w http.ResponseWriter, req *http.Request) {
-	defer req.Body.Close()
+	vars := mux.Vars(req)
+	id := vars["id"]
 
-	body, err := ioutil.ReadAll(req.Body)
+	s.RLock()
+	if _, ok := s.sessions[id]; ok {
+		SendHttpResponse(w, http.StatusConflict,
+			nil, fmt.Sprintf("Session id %s already taken", id))
 
-	if err != nil {
-		log.Printf("Error reading request body: %s", err)
+		s.RUnlock()
+		return
+	}
+	s.RUnlock()
 
-		SendHttpResponse(w, http.StatusBadRequest,
-			"Error reading request body: %s", err)
+	ch := make(chan *BroMessage, 1)
+
+	s.Lock()
+	s.sessions[id] = ch
+	s.Unlock()
+
+	defer func() {
+		s.Lock()
+		delete(s.sessions, id)
+		s.Unlock()
+	}()
+
+	f, ok := w.(http.Flusher)
+
+	if !ok {
+		SendHttpResponse(w, http.StatusInternalServerError,
+			nil, "Request cannot be casted to Flusher")
 
 		return
 	}
 
-	msg := BroMessage{}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("Access-Control-Allow-Origin", "*")
 
-	if err = json.Unmarshal(body, &msg); err != nil {
-		log.Printf("Error decoding request body: %s", err)
+	for {
+		select {
+		case <-req.Context().Done():
+			return
+		case msg := <-ch:
+			js, _ := json.MarshalIndent(msg, "", "   ")
 
-		SendHttpResponse(w, http.StatusBadRequest,
-			"Error decoding request body: %s", err)
-
-		return
+			w.Write(js)
+			f.Flush()
+		}
 	}
-
-	SendHttpResponse(w, http.StatusOK, nil, "")
 }

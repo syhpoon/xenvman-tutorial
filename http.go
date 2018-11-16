@@ -95,7 +95,8 @@ func SendHttpResponse(w http.ResponseWriter, code int,
 
 			return err
 		default:
-			err := fmt.Errorf("Invalid body type %T, []byte or string expected", body)
+			err := fmt.Errorf("Invalid body type %T, []byte or string expected",
+				body)
 
 			log.Printf(err.Error())
 
