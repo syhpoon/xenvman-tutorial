@@ -26,6 +26,7 @@ package main
 
 import (
 	"context"
+	"github.com/globalsign/mgo"
 	"log"
 	"net"
 	"os"
@@ -38,6 +39,7 @@ import (
 )
 
 var listenFlag string
+var mongoFlag string
 
 var runCmd = &cobra.Command{
 	Use:   "run",
@@ -48,12 +50,23 @@ var runCmd = &cobra.Command{
 		listener, err := net.Listen("tcp", listenFlag)
 
 		if err != nil {
-			log.Printf("Unable to start listener: %s", err)
-
-			os.Exit(1)
+			log.Fatalf("Unable to start listener: %s", err)
 		}
 
-		srv := NewServer(listener, ctx)
+		// DB
+		info, err := mgo.ParseURL(mongoFlag)
+
+		if err != nil {
+			log.Fatalf("Invalid mongo url %s: %s", mongoFlag, err)
+		}
+
+		db, err := mgo.Dial(mongoFlag)
+
+		if err != nil {
+			log.Fatalf("Error connecting to Mongo: %s", err)
+		}
+
+		srv := NewServer(listener, db, info.Database, ctx)
 
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
@@ -100,4 +113,6 @@ LOOP:
 func init() {
 	runCmd.Flags().StringVarP(&listenFlag, "listen", "l", ":9999",
 		"Listen address")
+	runCmd.Flags().StringVarP(&mongoFlag, "db", "d", "localhost/bro",
+		"Mongo host/database")
 }

@@ -30,28 +30,40 @@ import (
 	"log"
 	"net"
 	"sync"
+	"time"
 
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
+	"github.com/globalsign/mgo"
 	"github.com/gorilla/mux"
 )
+
+type dbMessage struct {
+	Ts  time.Time
+	Msg *BroMessage
+}
 
 type Server struct {
 	router   *mux.Router
 	server   http.Server
 	listener net.Listener
+	db       *mgo.Session
+	dbName   string
 	ctx      context.Context
 	sessions map[string]chan *BroMessage
 	sync.RWMutex
 }
 
-func NewServer(listener net.Listener, ctx context.Context) *Server {
+func NewServer(listener net.Listener, db *mgo.Session, dbName string,
+	ctx context.Context) *Server {
 	router := mux.NewRouter()
 
 	return &Server{
 		router: router,
+		db:     db,
+		dbName: dbName,
 		server: http.Server{
 			Handler: router,
 		},
@@ -119,6 +131,17 @@ func (s *Server) postHandler(w http.ResponseWriter, req *http.Request) {
 
 		return
 	}
+
+	db := s.db.Copy()
+	db.SetSocketTimeout(0)
+	defer db.Close()
+
+	col := db.DB(s.dbName).C("messages")
+
+	col.Insert(&dbMessage{
+		Ts:  time.Now(),
+		Msg: &msg,
+	})
 
 	s.Lock()
 	for id, ch := range s.sessions {
