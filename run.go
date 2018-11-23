@@ -26,18 +26,21 @@ package main
 
 import (
 	"context"
-	"github.com/globalsign/mgo"
 	"log"
 	"net"
 	"os"
 	"sync"
 	"syscall"
 
+	"github.com/globalsign/mgo"
+	"github.com/spf13/viper"
+
 	"os/signal"
 
 	"github.com/spf13/cobra"
 )
 
+var configFlag string
 var listenFlag string
 var mongoFlag string
 
@@ -47,20 +50,30 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, cancel := context.WithCancel(context.Background())
 
-		listener, err := net.Listen("tcp", listenFlag)
+		listenCfg := listenFlag
+		mongoCfg := mongoFlag
+
+		if configFlag != "" {
+			initConfig()
+
+			listenCfg = viper.GetString("listen")
+			mongoCfg = viper.GetString("mongodb")
+		}
+
+		listener, err := net.Listen("tcp", listenCfg)
 
 		if err != nil {
 			log.Fatalf("Unable to start listener: %s", err)
 		}
 
 		// DB
-		info, err := mgo.ParseURL(mongoFlag)
+		info, err := mgo.ParseURL(mongoCfg)
 
 		if err != nil {
-			log.Fatalf("Invalid mongo url %s: %s", mongoFlag, err)
+			log.Fatalf("Invalid mongo url %s: %s", mongoCfg, err)
 		}
 
-		db, err := mgo.Dial(mongoFlag)
+		db, err := mgo.Dial(mongoCfg)
 
 		if err != nil {
 			log.Fatalf("Error connecting to Mongo: %s", err)
@@ -75,6 +88,24 @@ var runCmd = &cobra.Command{
 
 		wait(ctx, cancel, wg)
 	},
+}
+
+func initConfig() {
+	file, err := os.Open(configFlag)
+
+	if err != nil {
+		log.Fatalf("Error reading config: %s", err)
+	}
+
+	log.Printf("Using configuration file: %s", configFlag)
+
+	viper.SetConfigType("toml")
+
+	err = viper.ReadConfig(file)
+
+	if err != nil {
+		log.Fatalf("Error parsing config: %s", err)
+	}
 }
 
 func wait(ctx context.Context, cancel func(), wg *sync.WaitGroup) {
@@ -111,6 +142,8 @@ LOOP:
 }
 
 func init() {
+	runCmd.Flags().StringVarP(&configFlag, "config", "c", "",
+		"Path to configuration file")
 	runCmd.Flags().StringVarP(&listenFlag, "listen", "l", ":9999",
 		"Listen address")
 	runCmd.Flags().StringVarP(&mongoFlag, "db", "d", "localhost/bro",

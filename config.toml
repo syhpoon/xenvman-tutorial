@@ -1,0 +1,2 @@
+listen = ":9999"
+mongo = "localhost/bro"
