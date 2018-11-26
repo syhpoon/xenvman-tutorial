@@ -57,7 +57,7 @@ var runCmd = &cobra.Command{
 			initConfig()
 
 			listenCfg = viper.GetString("listen")
-			mongoCfg = viper.GetString("mongodb")
+			mongoCfg = viper.GetString("mongo")
 		}
 
 		listener, err := net.Listen("tcp", listenCfg)
@@ -72,6 +72,8 @@ var runCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("Invalid mongo url %s: %s", mongoCfg, err)
 		}
+
+		log.Printf("Connecting to mongo at %s", mongoCfg)
 
 		db, err := mgo.Dial(mongoCfg)
 
