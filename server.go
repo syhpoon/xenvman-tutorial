@@ -105,6 +105,9 @@ func (s *Server) setupHandlers() {
 	// GET /v1/poll - Poll for new bro messages
 	s.router.HandleFunc("/v1/poll/{id}", s.pollHandler).
 		Methods(http.MethodGet)
+
+	// GET / - Empty page
+	s.router.HandleFunc("/", s.rootHandler).Methods(http.MethodGet)
 }
 
 func (s *Server) postHandler(w http.ResponseWriter, req *http.Request) {
@@ -196,6 +199,7 @@ func (s *Server) pollHandler(w http.ResponseWriter, req *http.Request) {
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Access-Control-Allow-Origin", "*")
+	req.Header.Set("X-Content-Type-Options", "nosniff")
 
 	for {
 		select {
@@ -208,4 +212,8 @@ func (s *Server) pollHandler(w http.ResponseWriter, req *http.Request) {
 			f.Flush()
 		}
 	}
+}
+
+func (s *Server) rootHandler(w http.ResponseWriter, req *http.Request) {
+	SendHttpResponse(w, http.StatusOK, nil, "")
 }

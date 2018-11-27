@@ -29,10 +29,9 @@ function execute(tpl, params) {
   cont.SetLabel("port", port);
   cont.SetLabel("bro", "true");
 
-  /* TODO
   tpl.AddReadinessCheck("http", {
-    "url": 'http://{{.ExternalAddress}}:{{.ExposedContainerPort "???" port}}',
-    "body": "c8_auth_authenticate"
+    "url": fmt('http://{{.ExternalAddress}}:{{.ExposedContainerPort "bro" %v}}/',
+               port),
+    "codes": [200]
   });
-  */
 }

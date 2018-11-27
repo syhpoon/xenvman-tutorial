@@ -9,9 +9,10 @@ import (
 	"time"
 
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/require"
 	"github.com/syhpoon/xenvman/pkg/client"
 	"github.com/syhpoon/xenvman/pkg/def"
@@ -98,8 +99,22 @@ func testBroadcast(env *client.Env, t *testing.T) {
 		}
 	}
 
-	// TODO: Mongo
-	_ = mongoUrl
+	// Make sure the message was saved to mongo
+	t.Logf("Connecting to Mongo at %s", mongoUrl)
+
+	db, err := mgo.Dial(mongoUrl)
+	require.Nil(t, err)
+
+	db.SetSocketTimeout(0)
+	defer db.Close()
+
+	col := db.DB("bro").C("messages")
+
+	mongoMsg := dbMessage{}
+	err = col.Find(bson.M{}).One(&mongoMsg)
+	require.Nil(t, err)
+
+	require.Equal(t, *msg, *mongoMsg.Msg)
 }
 
 func poller(url string, msgCh chan<- *BroMessage, errCh chan<- error) {
@@ -113,24 +128,21 @@ func poller(url string, msgCh chan<- *BroMessage, errCh chan<- error) {
 		return
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		errCh <- fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+	}
+
 	defer resp.Body.Close()
 
-	rb, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		errCh <- err
-
-		return
-	}
+	dec := json.NewDecoder(resp.Body)
 
 	msg := BroMessage{}
 
-	if err := json.Unmarshal(rb, &msg); err != nil {
+	if err := dec.Decode(&msg); err != nil {
 		errCh <- err
 
 		return
 	}
 
-	fmt.Printf(">>>> %+v\n", msg)
 	msgCh <- &msg
 }
