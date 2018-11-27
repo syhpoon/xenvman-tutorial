@@ -1,29 +1,40 @@
 module github.com/syhpoon/xenvman-tutorial
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
-	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/Microsoft/go-winio v0.4.11 // indirect
-	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
+	cloud.google.com/go v0.33.1 // indirect
+	github.com/containerd/console v0.0.0-20181022165439-0650fd9eeb50 // indirect
+	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
+	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
+	github.com/cyphar/filepath-securejoin v0.2.2 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
-	github.com/google/go-cmp v0.2.0 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
+	github.com/godbus/dbus v0.0.0-20181101234600-2ff6f7ffd60f // indirect
+	github.com/golang/lint v0.0.0-20181026193005-c67002cb31c3 // indirect
 	github.com/gorilla/mux v1.6.2
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/mholt/archiver v3.1.0+incompatible // indirect
+	github.com/mrunalp/fileutils v0.0.0-20171103030105-7d4729fb3618 // indirect
+	github.com/opencontainers/runc v1.0.0-rc5 // indirect
+	github.com/opencontainers/runtime-spec v1.0.1 // indirect
+	github.com/opencontainers/selinux v1.0.0-rc1 // indirect
 	github.com/prometheus/client_golang v0.9.1 // indirect
-	github.com/prometheus/common v0.0.0-20181120120127-aeab699e26f4 // indirect
+	github.com/prometheus/common v0.0.0-20181126121408-4724e9255275 // indirect
+	github.com/prometheus/procfs v0.0.0-20181126161756-619930b0b471 // indirect
 	github.com/spf13/cast v1.3.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.2.1
 	github.com/stretchr/testify v1.2.2
-	github.com/syhpoon/xenvman v0.0.0-20181121041751-f85ec1a577b7
-	golang.org/x/crypto v0.0.0-20181112202954-3d3f9f413869 // indirect
+	github.com/syhpoon/xenvman v0.0.0-20181126053618-16d2864193db
+	github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2 // indirect
+	github.com/urfave/cli v1.20.0 // indirect
+	github.com/vishvananda/netlink v1.0.0 // indirect
+	github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc // indirect
+	golang.org/x/crypto v0.0.0-20181126163421-e657309f52e7 // indirect
+	golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3 // indirect
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a // indirect
-	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
+	golang.org/x/oauth2 v0.0.0-20181120190819-8f65e3013eba // indirect
 	golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b // indirect
-	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
-	google.golang.org/genproto v0.0.0-20181109154231-b5d43981345b // indirect
+	golang.org/x/tools v0.0.0-20181122213734-04b5d21e00f1 // indirect
+	google.golang.org/appengine v1.3.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
-	gotest.tools v2.2.0+incompatible // indirect
+	honnef.co/go/tools v0.0.0-20180920025451-e3ad64cb4ed3 // indirect
 )
