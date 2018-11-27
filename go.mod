@@ -11,7 +11,6 @@ require (
 	github.com/golang/lint v0.0.0-20181026193005-c67002cb31c3 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/mholt/archiver v3.1.0+incompatible // indirect
 	github.com/mrunalp/fileutils v0.0.0-20171103030105-7d4729fb3618 // indirect
 	github.com/opencontainers/runc v1.0.0-rc5 // indirect
 	github.com/opencontainers/runtime-spec v1.0.1 // indirect
@@ -28,6 +27,7 @@ require (
 	github.com/urfave/cli v1.20.0 // indirect
 	github.com/vishvananda/netlink v1.0.0 // indirect
 	github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc // indirect
+	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/crypto v0.0.0-20181126163421-e657309f52e7 // indirect
 	golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3 // indirect
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a // indirect
