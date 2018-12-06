@@ -59,12 +59,6 @@ func testBroadcast(env *client.Env, t *testing.T) {
 	mongoCont, err := env.GetContainer("mongo", 0, "mongo")
 	require.Nil(t, err)
 
-	msg := &BroMessage{
-		From:    "3",
-		Message: "wut!?",
-		Angry:   true,
-	}
-
 	pollUrl := fmt.Sprintf("http://%s/v1/poll/", broCont.Ports[broTestPort])
 	postUrl := fmt.Sprintf("http://%s/v1/bro", broCont.Ports[broTestPort])
 	mongoUrl := fmt.Sprintf("%s/bro", mongoCont.Ports[27017])
@@ -76,11 +70,19 @@ func testBroadcast(env *client.Env, t *testing.T) {
 	go poller(pollUrl+"1", msgCh, errCh)
 	go poller(pollUrl+"2", msgCh, errCh)
 
+	msg := &BroMessage{
+		From:    "3",
+		Message: "wut!?",
+		Angry:   true,
+	}
+
 	// Post the message
 	postBody, err := json.Marshal(msg)
 	require.Nil(t, err)
 
-	resp, err := http.Post(postUrl, "test/javascript", bytes.NewReader(postBody))
+	resp, err := http.Post(postUrl, "test/javascript",
+		bytes.NewReader(postBody))
+
 	require.Nil(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 

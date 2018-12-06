@@ -29,9 +29,8 @@ function execute(tpl, params) {
   cont.SetLabel("port", port);
   cont.SetLabel("bro", "true");
 
-  tpl.AddReadinessCheck("http", {
-    "url": fmt('http://{{.ExternalAddress}}:{{.ExposedContainerPort "bro" %v}}/',
-               port),
+  cont.AddReadinessCheck("http", {
+    "url": fmt('http://{{.ExternalAddress}}:{{.ExposedPort %v}}/', port),
     "codes": [200]
   });
 }
