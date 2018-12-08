@@ -23,7 +23,7 @@ const broTestPort = 9988
 func TestXenvmanBro(t *testing.T) {
 	cl := client.New(client.Params{})
 
-	env := cl.MustCreateEnv(&def.Env{
+	env := cl.MustCreateEnv(&def.InputEnv{
 		Name:        "bro-test",
 		Description: "Testing Bro API",
 		Templates: []*def.Tpl{
