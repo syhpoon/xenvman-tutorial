@@ -1,7 +1,7 @@
-{{with .EnvContainerWithLabel "bro" "" -}}
+{{with .ContainerWithLabel "bro" "" -}}
 listen = ":{{.GetLabel "port"}}"
 {{- end}}
 
-{{with .EnvContainerWithLabel "mongo" "" -}}
+{{with .ContainerWithLabel "mongo" "" -}}
 mongo = "{{.Hostname}}/bro"
 {{- end}}

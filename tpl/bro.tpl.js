@@ -30,7 +30,7 @@ function execute(tpl, params) {
   cont.SetLabel("bro", "true");
 
   cont.AddReadinessCheck("http", {
-    "url": fmt('http://{{.ExternalAddress}}:{{.ExposedPort %v}}/', port),
+    "url": fmt('http://{{.ExternalAddress}}:{{.SelfExposedPort %v}}/', port),
     "codes": [200]
   });
 }
