@@ -56,12 +56,19 @@ func testBroadcast(env *client.Env, t *testing.T) {
 	broCont, err := env.GetContainer("bro", 0, "bro")
 	require.Nil(t, err)
 
+	portStr := fmt.Sprintf("%d", broTestPort)
+
 	mongoCont, err := env.GetContainer("mongo", 0, "mongo")
 	require.Nil(t, err)
 
-	pollUrl := fmt.Sprintf("http://%s/v1/poll/", broCont.Ports[broTestPort])
-	postUrl := fmt.Sprintf("http://%s/v1/bro", broCont.Ports[broTestPort])
-	mongoUrl := fmt.Sprintf("%s/bro", mongoCont.Ports[27017])
+	pollUrl := fmt.Sprintf("http://%s:%d/v1/poll/",
+		env.ExternalAddress, broCont.Ports[portStr])
+
+	postUrl := fmt.Sprintf("http://%s:%d/v1/bro",
+		env.ExternalAddress, broCont.Ports[portStr])
+
+	mongoUrl := fmt.Sprintf("%s:%d/bro",
+		env.ExternalAddress, mongoCont.Ports["27017"])
 
 	// 1. Start pollers
 	msgCh := make(chan *BroMessage, 2)
