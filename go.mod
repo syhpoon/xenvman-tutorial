@@ -8,6 +8,5 @@ require (
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.3.0
-	github.com/syhpoon/xenvman/pkg/client v2.0.0+incompatible
-	github.com/syhpoon/xenvman/pkg/def v2.0.0+incompatible
+	github.com/syhpoon/xenvman/pkg/client v0.0.0-20190201024054-f2e7a6af1908
 )
